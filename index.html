@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>Gyanz</title>
+<meta name="description" content="Gyanz is an AI tutor for CBSE students. It finds the gap you did not know you had and helps you fix it.">
+<meta name="theme-color" content="#F5F7FA">
+<style>
+/* Design plan.
+   Layout: calm Apple-style marketing page. A left-aligned hero with a worked example on the right,
+   then one idea per section, each in a different layout. Cool neutrals, one saffron accent.
+   Shapes: buttons are pills, every card and panel uses 20px corners, nothing else is rounded.
+   Type: the system font only, so the page loads no third-party fonts and makes no third-party requests. */
+:root {
+  --bg: #F5F7FA;
+  --surface: #FFFFFF;
+  --fg: #0F1B2D;
+  --muted: #4A566A;
+  --line: #D9DFE9;
+  --accent: #F5B031;
+  --accent-text: #8F5A00;
+  --on-accent: #1B1003;
+  --accent-tint: #FCEFD3;
+  --mark-left: #1C2430;
+  --panel: #0F1B2D;
+  --panel-fg: #EEF2F8;
+  --panel-muted: #AEBACD;
+  --nav-bg: rgba(245, 247, 250, 0.72);
+  --radius: 20px;
+  --font: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-hi: "Kohinoor Devanagari", "Nirmala UI", "Noto Sans Devanagari", sans-serif;
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1220;
+    --surface: #121C2E;
+    --fg: #E9EEF6;
+    --muted: #A5B1C4;
+    --line: #26344B;
+    --accent: #F5B031;
+    --accent-text: #F5B031;
+    --on-accent: #1B1003;
+    --accent-tint: #2E2410;
+    --mark-left: #EEF1F5;
+    --panel: #1A2A44;
+    --panel-fg: #EEF2F8;
+    --panel-muted: #B3BFD1;
+    --nav-bg: rgba(11, 18, 32, 0.72);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1220;
+  --surface: #121C2E;
+  --fg: #E9EEF6;
+  --muted: #A5B1C4;
+  --line: #26344B;
+  --accent: #F5B031;
+  --accent-text: #F5B031;
+  --on-accent: #1B1003;
+  --accent-tint: #2E2410;
+  --mark-left: #EEF1F5;
+  --panel: #1A2A44;
+  --panel-fg: #EEF2F8;
+  --panel-muted: #B3BFD1;
+  --nav-bg: rgba(11, 18, 32, 0.72);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  padding-left: var(--gutter-l);
+  padding-right: var(--gutter-r);
+}
+.wrap { max-width: 1120px; margin-inline: auto; }
+h1, h2, h3, p { margin: 0; }
+h1, h2 { text-wrap: balance; }
+h2 {
+  font-size: clamp(1.9rem, 4.2vw, 3.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  font-weight: 700;
+  max-width: 20ch;
+}
+h3 { font-size: 1.25rem; line-height: 1.25; letter-spacing: -0.01em; font-weight: 650; }
+.lead { font-size: clamp(1.1rem, 1.6vw, 1.3rem); color: var(--muted); max-width: 52ch; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 3px; border-radius: 6px; }
+section { padding-block: clamp(64px, 10vw, 128px); }
+.hi { font-family: var(--font-hi); }
+
+/* Navigation: one line, translucent, content scrolls under it */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin-inline: calc(var(--gutter-l) * -1) calc(var(--gutter-r) * -1);
+  padding-inline: var(--gutter-l) var(--gutter-r);
+  background: var(--nav-bg);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+}
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 16px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.2rem; letter-spacing: -0.02em; text-decoration: none; }
+.mark { width: 30px; height: 30px; flex: none; }
+.mark .l { fill: var(--mark-left); }
+footer .brand { font-size: 1rem; color: var(--fg); }
+footer .mark { width: 24px; height: 24px; }
+.nav ul { display: flex; gap: clamp(14px, 3vw, 32px); list-style: none; margin: 0; padding: 0; font-size: 0.9rem; }
+.nav a { text-decoration: none; color: var(--muted); transition: color 120ms ease-out; }
+.nav a:hover { color: var(--fg); }
+@media (prefers-reduced-transparency: reduce) {
+  .nav { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* Hero */
+.hero { padding-block: clamp(40px, 7vw, 96px) clamp(56px, 8vw, 112px); }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: clamp(32px, 6vw, 80px); align-items: center; }
+h1 {
+  font-size: clamp(2.5rem, 6.4vw, 4.9rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  font-weight: 750;
+  max-width: 15ch;
+}
+h1 em { font-style: italic; color: var(--accent-text); padding-right: 0.04em; }
+.hero .lead { margin-top: 24px; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 32px;
+  padding: 14px 26px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 650;
+  font-size: 1rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 100ms ease-out, filter 120ms ease-out;
+}
+.btn:hover { filter: brightness(1.06); }
+.btn:active { transform: scale(0.97); }
+
+/* Worked example in the hero */
+.trace {
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(20px, 3vw, 32px);
+  box-shadow: 0 24px 60px -32px rgba(15, 27, 45, 0.28);
+}
+.trace ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.node { position: relative; padding: 0 0 26px 40px; animation: light 700ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.node:last-child { padding-bottom: 0; }
+.node::before { content: ""; position: absolute; left: 7px; top: 22px; bottom: -4px; width: 2px; background: var(--line); }
+.node:last-child::before { display: none; }
+.node::after { content: ""; position: absolute; left: 0; top: 4px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--muted); background: var(--surface); }
+.node small { display: block; font-size: 0.88rem; color: var(--muted); }
+.node b { display: block; font-weight: 650; font-size: 1.05rem; line-height: 1.3; }
+.tag { display: inline-block; margin-top: 6px; padding: 2px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+.node.wrong::after { border-color: var(--fg); background: var(--fg); }
+.node.wrong .tag { background: var(--line); color: var(--fg); }
+.node.gap::after { border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 5px var(--accent-tint); }
+.node.gap .tag { background: var(--accent); color: var(--on-accent); }
+.node:nth-child(1) { animation-delay: 150ms; }
+.node:nth-child(2) { animation-delay: 750ms; }
+.node:nth-child(3) { animation-delay: 1350ms; }
+.node:nth-child(4) { animation-delay: 1950ms; }
+@keyframes light { from { opacity: 0.25; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+.trace figcaption { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 0.92rem; color: var(--muted); }
+
+/* Vision */
+.vision h2 { max-width: 16ch; font-size: clamp(2.3rem, 6vw, 4.4rem); letter-spacing: -0.035em; }
+.vision .lead { margin-top: 28px; }
+.vision .lead + .lead { margin-top: 12px; }
+
+/* Problem: a plain list, one rule above each row */
+.problem h2 { max-width: 22ch; }
+.rows { margin: 48px 0 0; padding: 0; list-style: none; }
+.rows li { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 16px 40px; padding: 24px 0; border-top: 1px solid var(--line); }
+.rows li:last-child { border-bottom: 1px solid var(--line); }
+.rows h3 { font-size: clamp(1.25rem, 2.4vw, 1.7rem); letter-spacing: -0.02em; }
+.rows p { color: var(--muted); }
+
+/* Cause */
+.cause h2 { max-width: 18ch; }
+.cause .lead { margin-top: 24px; }
+.versus { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 48px; }
+.panel { border-radius: var(--radius); padding: clamp(24px, 3.5vw, 40px); }
+.panel h3 { font-size: 1.05rem; text-transform: none; margin-bottom: 18px; }
+.panel ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; font-size: 1.1rem; line-height: 1.4; }
+.panel.old { background: var(--surface); border: 1px solid var(--line); }
+.panel.old h3, .panel.old li { color: var(--muted); }
+.panel.new { background: var(--panel); color: var(--panel-fg); }
+.panel.new h3 { color: var(--accent); }
+
+/* Fix: four cells with different weight */
+.fix h2 { max-width: 18ch; }
+.bento { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; margin-top: 48px; }
+.cell { border-radius: var(--radius); padding: clamp(24px, 3vw, 36px); display: flex; flex-direction: column; gap: 12px; }
+.cell p { color: inherit; opacity: 0.86; }
+.cell.a { grid-column: span 4; background: var(--accent-tint); min-height: 240px; justify-content: flex-end; }
+.cell.a h3 { font-size: clamp(1.6rem, 3vw, 2.4rem); letter-spacing: -0.025em; }
+.cell.b { grid-column: span 2; grid-row: span 2; background: var(--panel); color: var(--panel-fg); justify-content: flex-end; }
+.cell.c { grid-column: span 2; background: var(--surface); border: 1px solid var(--line); }
+.cell.d { grid-column: span 2; background: var(--surface); border: 1px solid var(--line); }
+
+/* Trust */
+.trust h2 { max-width: 20ch; }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 64px; margin-top: 56px; }
+.facts h3 { font-size: clamp(1.4rem, 2.6vw, 2rem); letter-spacing: -0.02em; margin-bottom: 8px; }
+.facts p { color: var(--muted); max-width: 40ch; }
+
+/* Where we are */
+.status { padding-bottom: clamp(48px, 7vw, 96px); }
+.status .box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(28px, 5vw, 64px); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; }
+.status .box p { color: var(--muted); max-width: 52ch; margin-top: 20px; }
+.status .big { font-family: var(--font-hi); font-size: clamp(4rem, 12vw, 8rem); line-height: 1; color: var(--accent-text); }
+
+footer { padding-block: 32px 48px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; }
+footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px; }
+
+
+@media (max-width: 860px) {
+  .hero .wrap { grid-template-columns: minmax(0, 1fr); }
+  .rows li { grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 20px 0; }
+  .versus { grid-template-columns: minmax(0, 1fr); }
+  .bento { grid-template-columns: minmax(0, 1fr); }
+  .cell.a, .cell.b, .cell.c, .cell.d { grid-column: auto; grid-row: auto; min-height: 0; }
+  .facts { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+  .status .box { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .nav ul { gap: 12px; font-size: 0.82rem; }
+  .brand { font-size: 1.1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .node { animation: none; }
+  .btn { transition: none; }
+}
+</style>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Gyanz, back to top"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon class="l" points="12,42 46,54 46,88 12,76"/><polygon points="54,54 88,42 88,76 54,88" fill="#f5b031"/><polygon points="54,54 63,50.8 63,84.8 54,88" fill="#a8700f"/><circle cx="50" cy="26" r="10" fill="#f5b031"/></svg>Gyanz</a>
+    <nav aria-label="Sections">
+      <ul>
+        <li><a href="#vision">Vision</a></li>
+        <li><a href="#problem">Problem</a></li>
+        <li><a href="#cause">Cause</a></li>
+        <li><a href="#fix">Fix</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <h1>Find the gap you <em>never</em> knew.</h1>
+        <p class="lead">Gyanz is an AI tutor for CBSE students. It starts the learning, so you never have to know what to ask.</p>
+        <a class="btn" href="#problem">See the problem</a>
+      </div>
+      <figure class="trace" aria-label="Example: a wrong answer in Class 9 traced back to fractions in Class 6">
+        <ol>
+          <li class="node wrong"><small>Class 9</small><b>Linear equations in two variables</b><span class="tag">Wrong answer</span></li>
+          <li class="node"><small>Class 8</small><b>Linear equations in one variable</b></li>
+          <li class="node"><small>Class 7</small><b>Simple equations</b></li>
+          <li class="node gap"><small>Class 6</small><b>Fractions</b><span class="tag">The gap</span></li>
+        </ol>
+        <figcaption>An example. When an answer is wrong, Gyanz steps back through the ideas underneath until it finds where understanding broke.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="vision" id="vision">
+    <div class="wrap">
+      <h2>A personal tutor for every student who needs one.</h2>
+      <p class="lead">Many students have no private tutor, cannot afford coaching, get no help at home, or do not feel confident enough to start.</p>
+      <p class="lead">Gyanz is for them. Good guidance that knows the student, at a price a family can afford.</p>
+    </div>
+  </section>
+
+  <section class="problem" id="problem">
+    <div class="wrap">
+      <h2>The students who need help most are the least likely to ask for it.</h2>
+      <ul class="rows">
+        <li><h3>No private tutor</h3><p>No one is watching closely enough to notice where a student got stuck.</p></li>
+        <li><h3>No money for coaching</h3><p>Good teaching exists, but it stays out of reach for most families.</p></li>
+        <li><h3>No help at home</h3><p>Homework becomes a wall when nobody around can explain the next step.</p></li>
+        <li><h3>No confidence to begin</h3><p>Not asking feels safer than asking the wrong thing.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="cause" id="cause">
+    <div class="wrap">
+      <h2>The gaps stay hidden, and every tool waits to be asked.</h2>
+      <p class="lead">A student who never understood fractions in Class 6 will not ask the question that fixes Class 9 algebra. They do not know it is missing.</p>
+      <div class="versus">
+        <div class="panel old">
+          <h3>Most AI tools</h3>
+          <ul>
+            <li>Wait for a question</li>
+            <li>Answer only what was asked</li>
+            <li>Cannot see an idea missed years ago</li>
+            <li>Often do the thinking for the student</li>
+          </ul>
+        </div>
+        <div class="panel new">
+          <h3>Gyanz</h3>
+          <ul>
+            <li>Starts with one task chosen for you</li>
+            <li>Keeps a record of what you know</li>
+            <li>Steps back from a mistake to its root</li>
+            <li>Makes you do the thinking</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fix" id="fix">
+    <div class="wrap">
+      <h2>How Gyanz fixes it.</h2>
+      <div class="bento">
+        <div class="cell a">
+          <h3>The system starts.</h3>
+          <p>Opening Gyanz shows one task, chosen for you. You never have to know what to ask.</p>
+        </div>
+        <div class="cell b">
+          <h3>It finds the root.</h3>
+          <p>Every chapter is mapped to the ideas it depends on. A wrong answer sends Gyanz down that map until it finds where understanding breaks, then it fixes that first.</p>
+        </div>
+        <div class="cell c">
+          <h3>You do the work.</h3>
+          <p>A short explanation, then your turn. Learning comes from trying, recalling and getting feedback.</p>
+        </div>
+        <div class="cell d">
+          <h3>Marks show it.</h3>
+          <p>Progress is measured by what you can now do and checked against your school marks, not by time spent.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust" id="trust">
+    <div class="wrap">
+      <h2>Built for the families who pay and the students who study.</h2>
+      <div class="facts">
+        <div><h3>Parents hold the key.</h3><p>A parent adds the AI key and sets the spending limit. Nothing is spent without them.</p></div>
+        <div><h3>Records stay on the device.</h3><p>A student's progress and records are kept on their own computer.</p></div>
+        <div><h3>No ads, no tracking.</h3><p>Gyanz exists to help a student learn.</p></div>
+        <div><h3>English and Hindi.</h3><p>Ask in the language you think in, including Hinglish.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="status">
+    <div class="wrap">
+      <div class="box">
+        <div>
+          <h2>Gyanz is in pilot.</h2>
+          <p>It is being tested with a Class 10 CBSE student. It starts with Classes 9 and 10 in Science, Maths and Social Science, as an app for Mac and Windows computers. It is not released yet.</p>
+        </div>
+        <div class="big" lang="hi" aria-hidden="true">ज्ञान</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="brand"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon class="l" points="12,42 46,54 46,88 12,76"/><polygon points="54,54 88,42 88,76 54,88" fill="#f5b031"/><polygon points="54,54 63,50.8 63,84.8 54,88" fill="#a8700f"/><circle cx="50" cy="26" r="10" fill="#f5b031"/></svg>Gyanz</span>
+    <span>From gyaan (<span lang="hi" class="hi">ज्ञान</span>), knowledge.</span>
+    <span>gyanz.co.in</span>
+  </div>
+</footer>
+
+</html>
