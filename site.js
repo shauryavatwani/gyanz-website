@@ -14,7 +14,7 @@
   function syncLenis() {
     if (reduced.matches) { if (lenis) { lenis.destroy(); lenis = null; } return; }
     if (lenis || !window.Lenis) return;
-    lenis = new window.Lenis({ autoRaf: true, lerp: 0.085, wheelMultiplier: 0.85, smoothWheel: true, syncTouch: false, anchors: { offset: -68 } });
+    lenis = new window.Lenis({ autoRaf: true, lerp: 0.085, wheelMultiplier: 0.85, smoothWheel: true, syncTouch: true, syncTouchLerp: 0.085, touchInertiaExponent: 1.7, anchors: { offset: -68 } });
     lenis.on("scroll", onScroll);
   }
 
