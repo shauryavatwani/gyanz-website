@@ -221,8 +221,9 @@ h1 em { font-style: italic; color: var(--accent-text); padding-right: 0.04em; }
 
 /* Trust */
 .trust h2 { max-width: 20ch; }
-.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 64px; margin-top: 56px; }
-.facts h3 { font-size: clamp(1.4rem, 2.6vw, 2rem); letter-spacing: -0.02em; margin-bottom: 8px; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px clamp(32px, 5vw, 64px); margin-top: 56px; }
+.facts > div { border-top: 1px solid var(--line); padding-top: 24px; }
+.facts h3 { font-size: clamp(1.3rem, 2.2vw, 1.75rem); letter-spacing: -0.02em; margin-bottom: 8px; }
 .facts p { color: var(--muted); max-width: 40ch; }
 
 /* Where we are */
@@ -364,7 +365,6 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     <div class="wrap">
       <h2>Built for the families who pay and the students who study.</h2>
       <div class="facts">
-        <div><h3>Parents hold the key.</h3><p>A parent adds the AI key and sets the spending limit. Nothing is spent without them.</p></div>
         <div><h3>Records stay on the device.</h3><p>A student's progress and records are kept on their own computer.</p></div>
         <div><h3>No ads, no tracking.</h3><p>Gyanz exists to help a student learn.</p></div>
         <div><h3>English and Hindi.</h3><p>Ask in the language you think in, including Hinglish.</p></div>
@@ -392,5 +392,4 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     <span>gyanz.co.in</span>
   </div>
 </footer>
-
 </html>
