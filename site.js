@@ -247,7 +247,10 @@
   fontsThen(headings);
 
   /* Back/Forward: the browser restores the scroll before fonts and split headings settle the page height, so it lands short. Put the saved spot back once the layout is final. */
-  const yKey = "gyanz-y:" + location.pathname;
+  /* The saved spot belongs to one history entry, not to one address: Home can be in the history twice. */
+  let yId = "";
+  try { yId = history.state && history.state.gyanzId; if (!yId) { yId = Math.random().toString(36).slice(2) + Date.now().toString(36); history.replaceState(Object.assign({}, history.state, { gyanzId: yId }), ""); } } catch (e) {}
+  const yKey = "gyanz-y:" + (yId || location.pathname);
   addEventListener("pagehide", () => { try { sessionStorage.setItem(yKey, String(Math.round(scrollY))); } catch (e) {} });
   try {
     const entry = performance.getEntriesByType("navigation")[0], y = +sessionStorage.getItem(yKey);

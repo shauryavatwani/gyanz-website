@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>Not found · Gyanz</title>
-<script>try{history.scrollRestoration='auto'}catch(e){}document.documentElement.classList.add('js');(function(){var t='dark';try{t=localStorage.getItem('gyanz-theme')==='light'?'light':'dark'}catch(e){}document.documentElement.setAttribute('data-theme',t)})();</script>
+<script>try{if(!location.hash)history.scrollRestoration='manual'}catch(e){}try{var n=performance.getEntriesByType('navigation')[0];if(!location.hash&&!(n&&n.type==='back_forward'))scrollTo(0,0)}catch(e){if(!location.hash)scrollTo(0,0)}document.documentElement.classList.add('js');(function(){var t='dark';try{t=localStorage.getItem('gyanz-theme')==='light'?'light':'dark'}catch(e){}document.documentElement.setAttribute('data-theme',t)})();</script>
 <meta name="description" content="This page is not here.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0B1220">
@@ -29,7 +29,8 @@
     <nav aria-label="Pages">
       <ul>
         <li><a href="/how-it-works/"><span class="nlong">How Gyanz works</span><span class="nshort" aria-hidden="true">How it works</span></a></li>
-        <li><a href="/parents/">For parents</a></li>
+        <li><a href="/mission/"><span class="nlong">Our mission</span><span class="nshort" aria-hidden="true">Mission</span></a></li>
+        <li><a href="/parents/"><span class="nlong">For parents</span><span class="nshort" aria-hidden="true">Parents</span></a></li>
         <li><a href="/about/">About</a></li>
       </ul>
     </nav>
@@ -52,7 +53,7 @@
   <div class="wrap">
     <a class="brand" href="/"><img class="mark" src="/favicon.svg" alt="" width="30" height="30">Gyanz</a>
     <span>From the word gyan (<span lang="hi" class="hi">ज्ञान</span>), knowledge.</span>
-    <nav class="links" aria-label="Footer"><a href="/how-it-works/">How Gyanz works</a><a href="/parents/">For parents</a><a href="/about/">About</a></nav>
+    <nav class="links" aria-label="Footer"><a href="/how-it-works/">How Gyanz works</a><a href="/mission/">Our mission</a><a href="/parents/">For parents</a><a href="/about/">About</a></nav>
     <span>© 2026 Gyanz · gyanz.co.in</span>
   </div>
 </footer>

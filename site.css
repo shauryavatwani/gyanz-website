@@ -466,6 +466,7 @@ footer .links a:hover { color: var(--fg); }
   .theme { width: 36px; height: 36px; }
 }
 @media (max-width: 400px) {
+  .nav .brand { padding: 8px; margin: -8px; }   /* the logo alone is 28px: widen the tap area to 44px without moving anything */
   .brand .name { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 @media (prefers-reduced-motion: reduce) {
