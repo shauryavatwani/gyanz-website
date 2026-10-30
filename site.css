@@ -1,10 +1,10 @@
 /* Design plan.
    Layout: calm Apple-style marketing pages. Each section uses a different layout family: a left-aligned hero with a worked example,
-   an asymmetric numbers band, full-width tiles, one pinned dark story, a scroll-snap gallery, big privacy statements, an accordion.
+   an asymmetric numbers band, full-width tiles, one dark story, a scroll-snap gallery, big privacy statements, an accordion.
    Shapes: buttons and chips are pills, every card, frame and tile uses 20px corners, nothing else is rounded.
    Type: one sans family (Instrument Sans) with tracking and leading tuned to each size, as Apple does with SF Pro. Mukta only for the
    Hindi word. Both are hosted on this site (OFL 1.1, see fonts/OFL.txt), so the pages make no third-party requests.
-   Colour: cool neutrals and one saffron accent. Exactly one dark block per page (the pinned story on How it works, one tile on Home).
+   Colour: cool neutrals and one saffron accent. One dark tile on Home; the story on How it works uses the page colours.
    Motion: transform and opacity only, and every effect is off under prefers-reduced-motion. */
 
 @font-face { font-family: "Instrument Sans"; src: url("fonts/instrument-sans-latin-wdth-normal.woff2") format("woff2"); font-weight: 400 700; font-stretch: 75% 100%; font-style: normal; font-display: swap; }
@@ -85,6 +85,8 @@ h3 { font-size: 1.25rem; line-height: 1.25; letter-spacing: -0.012em; font-weigh
 .lead { font-size: clamp(1.1rem, 1.6vw, 1.3rem); color: var(--muted); max-width: 52ch; }
 a { color: inherit; }
 :focus-visible { outline: 3px solid var(--accent-text); outline-offset: 3px; border-radius: 6px; }
+.skip-link { position: fixed; top: 0.75rem; left: 0.75rem; z-index: 100; padding: 0.6rem 1rem; border-radius: 999px; background: var(--fg); color: var(--bg); font-weight: 600; text-decoration: none; transform: translateY(-200%); }
+.skip-link:focus { transform: none; }
 section { padding-block: clamp(4rem, 10vw, 8rem); }
 .hi { font-family: var(--font-hi); }
 .eyebrow { display: block; margin-bottom: 1rem; font-size: 0.78rem; font-weight: 560; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-text); }
@@ -93,16 +95,10 @@ section { padding-block: clamp(4rem, 10vw, 8rem); }
 sup { font-size: 0.7em; line-height: 0; margin-left: 0.15em; }
 sup a { text-decoration: none; color: var(--accent-text); font-weight: 600; }
 
-/* Reading progress: pure CSS, driven by the page scroll */
+/* Reading progress: set by site.js from the scroll position; ends where the useful content ends (before the legal text if the page has it) */
 .progress { position: fixed; inset: 0 0 auto 0; height: 2px; z-index: 30; pointer-events: none; display: none; }
 .progress i { display: block; height: 100%; background: var(--accent); transform: scaleX(0); transform-origin: left; }
-@supports (animation-timeline: scroll()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .progress { display: block; }
-    .progress i { animation: prog linear both; animation-timeline: scroll(root); }
-  }
-}
-@keyframes prog { to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: no-preference) { .js .progress { display: block; } .progress i { will-change: transform; } }
 
 /* Navigation: thin, translucent, content scrolls under it; it slides away on the way down */
 .nav {
@@ -114,7 +110,6 @@ sup a { text-decoration: none; color: var(--accent-text); font-weight: 600; }
   background: var(--nav-bg);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
   backdrop-filter: blur(18px) saturate(180%);
-  will-change: transform;
   transition: transform 300ms var(--ease);
 }
 @supports (animation-timeline: scroll()) {
@@ -183,7 +178,7 @@ footer .mark { width: 26px; height: 26px; }
 .hero .lead { margin-top: 1.5rem; max-width: 44ch; }
 .hero .btn { margin-top: 2rem; }
 
-/* The worked example: one chain of ideas, used in the hero and in the pinned story */
+/* The worked example: one chain of ideas, used in the hero and in the story */
 .trace {
   --n-fg: var(--fg); --n-muted: var(--muted); --n-line: var(--line); --n-surface: var(--surface);
   background: var(--surface);
@@ -231,23 +226,15 @@ footer .mark { width: 26px; height: 26px; }
   .js main h1:not(.split) { opacity: 0; animation: unhide 0s linear 1.4s forwards; }
 }
 @keyframes unhide { to { opacity: 1; } }
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    [data-scrub] .w {
-      opacity: 0.18;
-      animation: wordlit linear both;
-      animation-timeline: view();
-      animation-range: entry calc(4% + var(--i) * 6%) entry calc(46% + var(--i) * 6%);
-    }
-  }
-}
-@keyframes wordlit { to { opacity: 1; } }
+
 
 /* Blocks rise once as they enter. Only starts hidden once the head script has set .js */
 @media (prefers-reduced-motion: no-preference) {
-  .js .reveal { opacity: 0; transform: translateY(20px); transition: opacity 800ms var(--ease), transform 800ms var(--ease); transition-delay: calc(var(--d, 0) * 70ms); }
-  .js .reveal.in { opacity: 1; transform: none; }
-  .js .reveal.now { transition: none; }
+  .js .reveal { transition: opacity 800ms var(--ease), transform 800ms var(--ease); transition-delay: calc(var(--d, 0) * 70ms); }
+  .js .reveal:not(.in) { opacity: 0; transform: translateY(20px); }
+  .js .reveal.skip { transition: none; }
+  /* once risen, a tile goes back to its own quick hover transition (without the stagger delay) */
+  .js .tile.reveal.set { transition: transform 200ms var(--ease), box-shadow 200ms var(--ease); transition-delay: 0s; }
 }
 
 /* Intro on inner pages */
@@ -306,18 +293,10 @@ footer .mark { width: 26px; height: 26px; }
 .footnotes a { text-underline-offset: 3px; }
 
 /* How it works: the one dark block. It darkens in as the page scrolls to it, and lightens out after.
-   Pinned only under .pin (set by site.js); otherwise a plain list. */
-.how { margin-inline: calc(var(--gutter-l) * -1) calc(var(--gutter-r) * -1); padding: 0 var(--gutter-l); background: var(--panel); color: var(--panel-fg); }
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .how { animation: band-in linear both, band-out linear forwards; animation-timeline: view(), view(); animation-range: entry 0px entry 480px, exit calc(100% - 480px) exit 100%; }
-    .how-track { animation: fade-in linear both, fade-out linear forwards; animation-timeline: view(), view(); animation-range: entry 160px entry 420px, exit calc(100% - 420px) exit calc(100% - 160px); }
-  }
-}
-@keyframes band-in { from { background-color: var(--bg); } to { background-color: var(--panel); } }
-@keyframes band-out { from { background-color: var(--panel); } to { background-color: var(--bg); } }
-@keyframes fade-in { from { opacity: 0; } }
-@keyframes fade-out { to { opacity: 0; } }
+   A plain two-column block: every step and the whole chain are shown at once, nothing is driven by the scroll. */
+.how { --panel: var(--bg); --panel-fg: var(--fg); --panel-muted: var(--muted); --panel-line: var(--line); --panel-card: var(--surface);
+  margin-inline: calc(var(--gutter-l) * -1) calc(var(--gutter-r) * -1); padding: 0 var(--gutter-l); background: var(--panel); color: var(--panel-fg); }
+
 .how-stage { padding-block: clamp(4rem, 10vw, 8rem); }
 .how-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 6vw, 5rem); align-items: center; }
 .how-visual { order: -1; }
@@ -326,22 +305,9 @@ footer .mark { width: 26px; height: 26px; }
 .how .node.wrong .tag { background: var(--panel-line); }
 .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.75rem; }
 .steps li { padding-left: 1.5rem; border-left: 2px solid var(--panel-line); transition: border-color 300ms ease-out; }
-.steps h3 { margin-bottom: 4px; color: var(--panel-fg); }
+.steps h2 { margin-bottom: 4px; max-width: none; font-size: 1.25rem; line-height: 1.25; letter-spacing: -0.012em; font-weight: 600; font-stretch: 100%; color: var(--panel-fg); }
 .steps p { color: var(--panel-muted); }
 .how-cap { margin-top: 1.4rem; padding-top: 1.1rem; border-top: 1px solid var(--panel-line); font-size: 0.95rem; color: var(--panel-muted); min-height: 3.2em; }
-.how.pin .how-track { height: 300svh; }
-.how.pin .how-stage { position: sticky; top: 0; height: 100svh; padding-block: 4.5rem 1.5rem; display: flex; align-items: center; will-change: transform; }
-.how.pin .how-stage .wrap { width: 100%; }
-.how.pin .steps { gap: 1.25rem; }
-.how.pin .steps li { border-left-color: var(--panel-line); }
-.how.pin .steps li h3, .how.pin .steps li p { color: var(--panel-muted); transition: color 300ms ease-out; }
-.how.pin .steps li[aria-current="step"] { border-left-color: var(--accent); }
-.how.pin .steps li[aria-current="step"] h3, .how.pin .steps li[aria-current="step"] p { color: var(--panel-fg); }
-.how.pin .node { opacity: 0.35; transition: opacity 400ms ease-out; }
-.how.pin .node.on { opacity: 1; }
-.how.pin .node::before { transform: scaleY(0); transition: transform 500ms var(--ease); }
-.how.pin .node.drawn::before { transform: scaleY(1); }
-.how.pin .node.gap:not(.on)::after { box-shadow: none; }
 
 /* A conversation */
 .feel .head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.25rem; }
@@ -372,9 +338,9 @@ footer .mark { width: 26px; height: 26px; }
 .gnav button:disabled { opacity: 0.4; cursor: default; }
 .rail { display: flex; gap: 16px; margin-top: 2.5rem; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; padding-block: 4px; }
 .rail::-webkit-scrollbar { display: none; }
-.gcard { flex: 0 0 min(82%, 26rem); scroll-snap-align: start; min-height: 26rem; display: flex; flex-direction: column; justify-content: flex-end; gap: 0.75rem; padding: clamp(1.5rem, 3vw, 2.25rem); border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); }
+.gcard { flex: 0 0 min(82%, 26rem); scroll-snap-align: start; min-height: 15rem; display: flex; flex-direction: column; justify-content: flex-start; gap: 0.75rem; padding: clamp(1.5rem, 3vw, 2.25rem); border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); }
 .gcard.tint { background: var(--accent-tint); border-color: transparent; }
-.gcard h3 { font-size: clamp(1.5rem, 2.6vw, 2rem); letter-spacing: -0.02em; line-height: 1.1; font-weight: 620; }
+.gcard h3 { text-wrap: balance; font-size: clamp(1.5rem, 2.6vw, 2rem); letter-spacing: -0.02em; line-height: 1.1; font-weight: 620; }
 .gcard p { color: var(--muted); }
 .gcard.tint p { color: var(--fg); opacity: 0.8; }
 
@@ -456,18 +422,7 @@ footer .links a:hover { color: var(--fg); }
 .nf h1 { margin-bottom: 1.25rem; }
 .nf .btn { margin-top: 2rem; }
 
-/* Page changes: the nav and footer stay still, the content cross-fades with a 12px rise going forward and a 12px settle going back */
-@view-transition { navigation: auto; }
-.nav { view-transition-name: nav; }
-footer { view-transition-name: footer; }
-main { view-transition-name: page; }
-@keyframes vt-out { to { opacity: 0; } }
-@keyframes vt-in { from { opacity: 0; transform: translateY(12px); } }
-@keyframes vt-in-back { from { opacity: 0; transform: translateY(-12px); } }
-::view-transition-old(page) { animation: vt-out 200ms ease-out both; }
-::view-transition-new(page) { animation: vt-in 350ms var(--ease) both; }
-html:active-view-transition-type(back)::view-transition-new(page) { animation-name: vt-in-back; }
-@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }
+
 
 @media (hover: hover) and (pointer: fine) {
   .tile, .gcard { transition: transform 200ms var(--ease), box-shadow 200ms var(--ease); }
@@ -485,7 +440,7 @@ html:active-view-transition-type(back)::view-transition-new(page) { animation-na
   .how-visual { order: 2; }
   .how-stage { padding-block: 4rem; }
   .rail { margin-inline: calc(var(--gutter-l) * -1) calc(var(--gutter-r) * -1); padding-inline: var(--gutter-l) var(--gutter-r); scroll-padding-inline: var(--gutter-l); }
-  .gcard { flex-basis: 80%; min-height: 22rem; }
+  .gcard { flex-basis: 80%; min-height: 13rem; }
   .dl { flex-direction: column; }
   .dl button { width: 100%; justify-content: space-between; }
   .sofar .stats { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
@@ -515,4 +470,36 @@ html:active-view-transition-type(back)::view-transition-new(page) { animation-na
 }
 @media (prefers-reduced-motion: reduce) {
   .btn, .theme, .nav, .tile, .gcard, .tlink .icon { transition: none; }
+}
+
+
+/* Our mission: one wide photo, the numbers band from Home, the photo rail (the How it works gallery with photos in the cards),
+   the scrubbed statement from About beside a photo, and the rows from Home. No new colours, radii or type sizes. */
+.photo { margin: 0; }
+.photo .frame { position: relative; overflow: clip; border-radius: var(--radius); background: var(--surface); aspect-ratio: 16 / 10; }
+.photo .frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.photo figcaption, .pcard figcaption { margin-top: 0.9rem; font-size: 0.88rem; color: var(--muted); }
+.m-hero { padding-block: 0; }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* the photo settles from a slight zoom as it comes into view, inside its fixed frame */
+    .photo.wide img { animation: m-settle linear both; animation-timeline: view(); animation-range: entry 0% cover 45%; }
+  }
+}
+@keyframes m-settle { from { transform: scale(1.08); } to { transform: none; } }
+.pcard { padding: 0; gap: 0; min-height: 0; overflow: clip; margin: 0; }
+.pcard .frame { aspect-ratio: 4 / 3; overflow: clip; background: var(--panel); }
+.pcard .frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pcard figcaption { margin: 0; padding: 1rem 1.25rem 1.2rem; }
+.m-split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: clamp(2rem, 6vw, 5rem); align-items: center; }
+.photo.tall .frame { aspect-ratio: 4 / 5; }
+.m-how .rows { margin-top: clamp(2.5rem, 6vw, 4rem); }
+@media (max-width: 860px) { .m-split { grid-template-columns: minmax(0, 1fr); } .photo.tall .frame { aspect-ratio: 4 / 3; } }
+.closing .btn { margin-top: 1.5rem; }
+.closing .btn .icon { width: 1em; height: 1em; }
+/* Four pages in the nav: on phones "Our mission" and "For parents" show as "Mission" and "Parents"; screen readers hear the full name */
+.nav .nshort { display: none; }
+@media (max-width: 560px) {
+  .nav .nshort { display: inline; }
+  .nav .nlong { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }

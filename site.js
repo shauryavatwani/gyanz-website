@@ -1,5 +1,5 @@
-/* gyanz.co.in: smooth scroll, text reveals, nav, the pinned story, the chat toggle and the gallery. No window scroll listeners:
-   page scroll comes from Lenis events, the progress bar and nav hairline are CSS, and reveals use IntersectionObserver. No dependencies except vendor/lenis.min.js.
+/* gyanz.co.in: smooth scroll, text reveals, nav, the chat toggle and the gallery. No window scroll listeners:
+   page scroll comes from Lenis events (the reading bar is set from them), the nav hairline is CSS, and reveals use IntersectionObserver. No dependencies except vendor/lenis.min.js.
    Every page loads this on its own. Everything here is progressive: the pages read fully without it, and under reduced motion
    it adds nothing that moves. Only transform and opacity are animated. */
 (() => {
@@ -32,11 +32,27 @@
   /* An IntersectionObserver only reports a change, so an element jumped past (End key, an anchor, a fast flick) would stay hidden.
      Each scroll frame therefore shows anything now above the viewport at once. */
   const pendingBlocks = new Set();
+  const settle = (el) => setTimeout(() => el.classList.add("set"), 1600);   // after the rise, hover takes over (see .reveal.set)
   const pendingHeads = new Map();
   function sweep() {
+    // Backstop for the observers: a page restored by Back/Forward (or the phone's page cache) can leave an observer silent,
+    // so anything on screen or above it is shown here too, from the scroll frames and a short timer.
+    const seen = (el) => { const r = el.getBoundingClientRect(); return r.bottom >= 0 && r.top < innerHeight * 0.92 && r.height > 0; };
+    pendingBlocks.forEach((el) => {
+      if (!seen(el)) return;
+      el.classList.add("in");
+      settle(el);
+      $$("[data-count]", el).forEach((n) => countUp(n, false));
+      pendingBlocks.delete(el);
+    });
+    pendingHeads.forEach((words, h) => {
+      if (!seen(h)) return;
+      words.forEach((w) => w.classList.add("in"));
+      pendingHeads.delete(h);
+    });
     pendingBlocks.forEach((el) => {
       if (el.getBoundingClientRect().bottom >= 0) return;
-      el.classList.add("now", "in");
+      el.classList.add("skip", "in", "set");
       $$("[data-count]", el).forEach((n) => countUp(n, true));
       pendingBlocks.delete(el);
     });
@@ -54,14 +70,16 @@
     $$("[data-stagger]").forEach((group) => {
       $$(".reveal", group).filter((el) => el.parentElement === group).forEach((el, i) => el.style.setProperty("--d", Math.min(i, 4)));
     });
-    if (!("IntersectionObserver" in window) || reduced.matches || !window.Lenis) { items.forEach((el) => el.classList.add("in", "now")); return; }
+    if (!("IntersectionObserver" in window) || reduced.matches || !window.Lenis) { items.forEach((el) => el.classList.add("in", "skip", "set")); return; }
     $$("[data-count]").forEach((n) => { n.textContent = "0"; });   // counted up once on reveal; the HTML holds the real number
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
+        if (!pendingBlocks.has(e.target)) { io.unobserve(e.target); return; }   // sweep() already showed it
         if (!e.isIntersecting && e.boundingClientRect.top >= 0) return;
         const above = !e.isIntersecting && e.boundingClientRect.bottom < 0;
-        if (above) e.target.classList.add("now");
+        if (above) e.target.classList.add("skip", "set");
         e.target.classList.add("in");
+        if (!above) settle(e.target);
         $$("[data-count]", e.target).forEach((n) => countUp(n, above));
         pendingBlocks.delete(e.target);
         io.unobserve(e.target);
@@ -112,6 +130,7 @@
     const byEl = new Map(groups.map((g) => [g.h, g.words]));
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
+        if (!pendingHeads.has(e.target)) { io.unobserve(e.target); return; }
         if (!e.isIntersecting && e.boundingClientRect.top >= 0) return;
         if (!e.isIntersecting) e.target.classList.add("h-now");   // already scrolled past: no animation
         byEl.get(e.target).forEach((w) => w.classList.add("in"));
@@ -131,24 +150,12 @@
     setTimeout(go, 1200);                                          // never hold the headings back for slow fonts
   }
 
-  /* Nav, progress bar, hero drift, the pinned story: all read in one scroll handler. */
+  /* Nav, progress bar, hero drift: all read in one scroll handler. */
   const nav = $("#nav");
   const drift = $("[data-drift]");
-  const how = $("#how");
-  const track = how && $("[data-track]", how);
-  const stepEls = how ? $$("[data-steps] > li", how) : [];
-  const nodes = how ? $$("[data-nodes] > .node", how) : [];
-  const capOut = how && $("[data-cap-out]", how);
-  const staticCap = capOut ? capOut.textContent : "";
-  let lastY = scrollY, acc = 0, step = -1, ticking = false;
-
-  function setStep(i) {
-    if (i === step) return;
-    step = i;
-    stepEls.forEach((el, k) => { if (k === i) el.setAttribute("aria-current", "step"); else el.removeAttribute("aria-current"); });
-    nodes.forEach((n, k) => { n.classList.toggle("on", k <= i); n.classList.toggle("drawn", k < i); });
-    if (capOut && stepEls[i]) capOut.textContent = stepEls[i].dataset.cap;
-  }
+  const bar = $(".progress i");
+  const legal = $("#legal");
+  let lastY = scrollY, acc = 0, ticking = false;
 
   function frame() {
     ticking = false;
@@ -164,35 +171,16 @@
       if (acc > 8) nav.classList.add("hide"); else if (acc < -8) nav.classList.remove("hide");
     }
 
+    // reading bar: full at the end of the useful content (the legal text, where a page has it, is not counted)
+    if (bar) {
+      const end = (legal ? legal.getBoundingClientRect().top + scrollY : document.documentElement.scrollHeight) - innerHeight;
+      bar.style.transform = "scaleX(" + (end > 0 ? clamp(scrollY / end, 0, 1) : 1).toFixed(4) + ")";
+    }
+
     // hero: the card drifts at 0.92x page speed for the first 600px
     if (drift) drift.style.transform = !lenis || y > 900 ? "" : "translate3d(0," + (clamp(y, 0, 600) * 0.08).toFixed(1) + "px,0)";
-
-    // pinned story
-    if (how && track && how.classList.contains("pin")) {
-      const r = track.getBoundingClientRect();
-      const span = r.height - innerHeight;
-      const p = span > 0 ? clamp(-r.top / span, 0, 1) : 0;
-      setStep(Math.min(stepEls.length - 1, Math.floor(p * stepEls.length)));
-    }
   }
   function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }
-
-  /* The story pins only on a big, motion-friendly screen. Otherwise it stays a plain list with everything lit. */
-  const pinQuery = matchMedia("(min-width: 861px) and (min-height: 620px) and (prefers-reduced-motion: no-preference)");
-  function syncPin() {
-    if (!how) return;
-    if (pinQuery.matches && lenis) {
-      how.classList.add("pin"); step = -1;
-      $$(".reveal", how).forEach((el) => el.classList.add("in", "now"));   // the pinned story is not part of the reveals
-      frame();
-    } else {
-      how.classList.remove("pin");
-      step = -1;
-      stepEls.forEach((el) => el.removeAttribute("aria-current"));
-      nodes.forEach((n) => n.classList.remove("on", "drawn"));
-      if (capOut) capOut.textContent = staticCap;
-    }
-  }
 
   /* English | Hinglish: both chats share one grid cell, so nothing moves when they swap. */
   function chat() {
@@ -238,16 +226,31 @@
     });
   }
 
-  reduced.addEventListener("change", () => { syncLenis(); syncPin(); onScroll(); });
-  pinQuery.addEventListener("change", syncPin);
+  reduced.addEventListener("change", () => { syncLenis(); onScroll(); });
   nav.addEventListener("focusin", () => nav.classList.remove("hide"));
+
+  /* A tab that was in the background (or a page restored by Back/Forward) can miss its observer callbacks: show whatever is on screen when it returns. */
+  const recheck = () => { lastY = scrollY; sweep(); frame(); };
+  addEventListener("pageshow", recheck);
+  addEventListener("focus", recheck);
+  addEventListener("resize", recheck);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) recheck(); });
+  let tries = 0;
+  const backstop = setInterval(() => { sweep(); if (++tries > 12) clearInterval(backstop); }, 400);
 
   reveals();
   syncLenis();
   theme();
   chat();
   gallery();
-  syncPin();
   frame();
   fontsThen(headings);
+
+  /* Back/Forward: the browser restores the scroll before fonts and split headings settle the page height, so it lands short. Put the saved spot back once the layout is final. */
+  const yKey = "gyanz-y:" + location.pathname;
+  addEventListener("pagehide", () => { try { sessionStorage.setItem(yKey, String(Math.round(scrollY))); } catch (e) {} });
+  try {
+    const entry = performance.getEntriesByType("navigation")[0], y = +sessionStorage.getItem(yKey);
+    if (entry && entry.type === "back_forward" && y > 0) fontsThen(() => { if (lenis) lenis.scrollTo(y, { immediate: true, force: true }); else scrollTo(0, y); recheck(); });
+  } catch (e) {}
 })();
