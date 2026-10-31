@@ -15,6 +15,9 @@
     if (reduced.matches) { if (lenis) { lenis.destroy(); lenis = null; } return; }
     if (lenis || !window.Lenis) return;
     lenis = new window.Lenis({ autoRaf: true, lerp: 0.085, wheelMultiplier: 0.85, smoothWheel: true, syncTouch: true, syncTouchLerp: 0.085, touchInertiaExponent: 1.7, anchors: { offset: -68 } });
+    // Lenis follows a finger 1:1 (lerp 1) and only eases after release. Give the drag the same easing as the wheel, so a phone feels like the laptop.
+    const lenisScrollTo = lenis.scrollTo.bind(lenis);
+    lenis.scrollTo = (target, opts) => lenisScrollTo(target, opts && opts.programmatic === false && opts.lerp === 1 ? { ...opts, lerp: 0.085 } : opts);
     lenis.on("scroll", onScroll);
   }
 
