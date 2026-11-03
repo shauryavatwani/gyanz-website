@@ -1,4 +1,4 @@
-/* gyanz.co.in: smooth scroll, text reveals, nav, the chat toggle and the gallery. No window scroll listeners:
+/* gyanz.online: smooth scroll, text reveals, nav, the chat toggle and the gallery. No window scroll listeners:
    page scroll comes from Lenis events (the reading bar is set from them), the nav hairline is CSS, and reveals use IntersectionObserver. No dependencies except vendor/lenis.min.js.
    Every page loads this on its own. Everything here is progressive: the pages read fully without it, and under reduced motion
    it adds nothing that moves. Only transform and opacity are animated. */
