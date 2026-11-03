@@ -219,7 +219,7 @@
     const apply = (t) => {
       root.setAttribute("data-theme", t);
       btn.setAttribute("aria-label", t === "light" ? "Switch to dark theme" : "Switch to light theme");
-      if (meta) meta.setAttribute("content", t === "light" ? "#F5F7FA" : "#0B1220");
+      if (meta) meta.setAttribute("content", t === "light" ? "#EEF1F5" : "#0E1117");
     };
     apply(root.getAttribute("data-theme") === "light" ? "light" : "dark");
     btn.addEventListener("click", () => {
