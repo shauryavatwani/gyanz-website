@@ -14,19 +14,18 @@
   function syncLenis() {
     if (reduced.matches) { if (lenis) { lenis.destroy(); lenis = null; } return; }
     if (lenis || !window.Lenis) return;
-    lenis = new window.Lenis({ autoRaf: true, lerp: 0.085, wheelMultiplier: 0.85, smoothWheel: true, syncTouch: true, syncTouchLerp: 0.06, touchInertiaExponent: 2.1, anchors: { offset: -68 } });
-    // Lenis follows a finger 1:1 (lerp 1) and only eases after release. Let the drag trail the finger a little (lerp 0.2) and let a flick glide long (syncTouchLerp, exponent), so a phone feels as smooth as the laptop.
-    const lenisScrollTo = lenis.scrollTo.bind(lenis);
-    lenis.scrollTo = (target, opts) => lenisScrollTo(target, opts && opts.programmatic === false && opts.lerp === 1 ? { ...opts, lerp: 0.2 } : opts);
+    // Wheel and trackpad are smoothed by Lenis. A finger is left to the browser: Lenis marks syncTouch experimental and unstable on iPhone Safari, and the system's own touch scroll (momentum, rubber band, address bar) is what a phone expects.
+    lenis = new window.Lenis({ autoRaf: true, lerp: 0.085, wheelMultiplier: 0.85, smoothWheel: true, syncTouch: false, anchors: { offset: -68 } });
     lenis.on("scroll", onScroll);
   }
 
   function countUp(n, skip) {
     const to = Number(n.dataset.count), ms = 1100, t0 = performance.now();
-    if (skip) { n.textContent = String(to); return; }
+    const fmt = (v) => v.toLocaleString("en-IN");   // 1,645, the way the Mission page writes 1,00,843
+    if (skip) { n.textContent = fmt(to); return; }
     const tick = (now) => {
       const k = clamp((now - t0) / ms, 0, 1);
-      n.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3))));
+      n.textContent = fmt(Math.round(to * (1 - Math.pow(1 - k, 3))));
       if (k < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
