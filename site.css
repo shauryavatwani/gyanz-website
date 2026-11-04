@@ -173,17 +173,13 @@ footer .mark { width: 26px; height: 26px; }
 .dl-note { margin-top: 12px; font-size: 0.88rem; color: var(--muted); }
 
 /* Hero */
-.hero { position: relative; padding-block: clamp(2rem, 5vw, 6rem) clamp(5.75rem, 8vw, 7rem); }
+.hero { position: relative; padding-block: clamp(2rem, 5vw, 6rem) clamp(3.5rem, 8vw, 7rem); }
 .hero::before { content: ""; position: absolute; z-index: -1; right: 0; top: 0; width: min(780px, 100%); aspect-ratio: 1; background: radial-gradient(closest-side, var(--glow), transparent); pointer-events: none; }
 .hero .wrap { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(2rem, 6vw, 5rem); align-items: center; }
 .hero h1 { font-size: clamp(2.6rem, 6.2vw, 4.9rem); max-width: 12ch; line-height: 1.08; }
 .hero h1 em { font-style: italic; font-stretch: 100%; color: var(--accent-text); padding-right: 0.06em; }
 .hero .lead { margin-top: 1.5rem; max-width: 44ch; }
 .hero .btn { margin-top: 2rem; }
-/* The scroll cue: a round 44px link at the foot of the hero that goes to the first section. Same look in both themes; the move itself is Lenis's anchor handling (a plain jump under reduced motion). */
-.scroll-cue { position: absolute; left: 50%; bottom: 28px; width: 44px; height: 44px; margin-left: -22px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--fg); text-decoration: none; }
-.scroll-cue svg { width: 20px; height: 20px; transform: rotate(90deg); }
-@media (prefers-reduced-motion: no-preference) { .scroll-cue { transition: transform 0.15s ease; } .scroll-cue:active { transform: scale(0.94); } }
 
 /* The worked example: one chain of ideas, used in the hero and in the story */
 .trace {
@@ -511,3 +507,44 @@ footer .links a:hover { color: var(--fg); }
   .nav .nshort { display: inline; }
   .nav .nlong { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
+
+/* Our mission, 4 Nov 2026: the product story leads; the people it is for sit in one calm block at the bottom, above the footnotes. */
+.m-lead { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(2rem, 6vw, 5rem); align-items: center; }
+.m-lead .btn { margin-top: 1.75rem; }
+.m-lead .btn .icon { width: 1em; height: 1em; }
+.m-lead .trace { margin: 0; }
+.m-statement .wrap > * { max-width: 46rem; }
+.m-statement .statement { max-width: 18ch; }
+.m-why { padding-block: clamp(2.5rem, 6vw, 4rem); border-top: 1px solid var(--line); }
+.m-why h2 { font-size: clamp(1.25rem, 2.4vw, 1.6rem); letter-spacing: -0.02em; font-weight: 600; }
+.m-why .lead { margin-top: 0.75rem; font-size: 1rem; line-height: 1.55; max-width: 62ch; color: var(--muted); }
+.m-why .lead sup { font-size: 0.7em; }
+.m-rail { margin-top: 1.5rem; align-items: flex-start; }
+.m-rail .pcard .frame { aspect-ratio: 4 / 3; }
+.m-rail .gcard { flex: 0 0 min(240px, 62vw); }
+.m-rail .pcard figcaption { font-size: 0.8rem; padding: 0.7rem 0.9rem 0.8rem; }
+@media (max-width: 860px) { .m-lead { grid-template-columns: minmax(0, 1fr); } }
+
+/* For parents, 4 Nov 2026: a short grid of what a parent wants to know before the longer statements. */
+.parents .lead { margin-top: 1.25rem; max-width: 46ch; }
+.pgrid { margin-top: clamp(2.5rem, 6vw, 4rem); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.pcell { padding: 1.5rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.pcell h2 { font-size: 1.15rem; letter-spacing: -0.015em; font-weight: 600; }
+.pcell p { margin-top: 0.6rem; color: var(--muted); font-size: 0.98rem; line-height: 1.55; }
+.p-data { padding-top: 0; }
+.p-data .stmts { margin-top: 0; }
+.p-data .stmt h2 { font-size: clamp(1.6rem, 3.6vw, 2.4rem); }
+.p-data .stmt p { font-size: 1.05rem; }
+.p-honest { margin-top: clamp(2rem, 5vw, 3.5rem); max-width: 56ch; }
+@media (max-width: 980px) { .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .pgrid { grid-template-columns: minmax(0, 1fr); } }
+.p-data .stmts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(2rem, 5vw, 3.5rem) clamp(2rem, 6vw, 5rem); border-top: 1px solid var(--line); padding-top: clamp(2rem, 5vw, 3.5rem); }
+.p-data .stmt { max-width: none; }
+.p-data .stmt h2 { max-width: 20ch; }
+.p-data .stmt p { max-width: 38ch; }
+@media (max-width: 760px) { .p-data .stmts { grid-template-columns: minmax(0, 1fr); } }
+
+/* Our mission: the student photos sit under the statement; the numbers block stays at the bottom */
+.m-photos { padding-block: 0 clamp(2.5rem, 6vw, 4rem); }
+.m-photos .m-rail { margin-top: 0; }
+.m-photos .dl-note { margin-top: 1rem; }
