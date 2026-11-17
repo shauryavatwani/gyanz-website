@@ -131,6 +131,7 @@ footer .mark { width: 26px; height: 26px; }
 .nav a { text-decoration: none; color: var(--muted); transition: color 120ms ease-out; }
 .nav ul a { display: inline-block; padding-block: 12px; white-space: nowrap; }
 .nav a:hover { color: var(--fg); }
+.nav .brand { color: var(--fg); }   /* the wordmark is the ink colour in the saved design; only the page links are muted */
 .nav-end { display: flex; align-items: center; gap: clamp(14px, 3vw, 28px); }
 .theme { display: none; width: 40px; height: 40px; place-items: center; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; transition: transform 100ms ease-out; }
 .js .theme { display: grid; }
@@ -334,8 +335,9 @@ footer .mark { width: 26px; height: 26px; }
 .talk:not(.on) { opacity: 0; visibility: hidden; }
 .msg { max-width: 88%; padding: 12px 16px; border-radius: 18px; font-size: 1rem; line-height: 1.5; }
 .msg small { display: block; margin-bottom: 2px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.01em; opacity: 0.75; }
-.msg.g { background: var(--bg); border: 1px solid var(--line); justify-self: start; border-bottom-left-radius: 6px; }
-.msg.s { background: var(--accent-tint); justify-self: end; border-bottom-right-radius: 6px; }
+/* Gyanz is the gold one (Shaurya, 5 Nov) */
+.msg.g { background: var(--accent-tint); border: 1px solid transparent; justify-self: start; border-bottom-left-radius: 6px; }
+.msg.s { background: var(--bg); border: 1px solid var(--line); justify-self: end; border-bottom-right-radius: 6px; }
 
 /* Get to know Gyanz: a horizontal scroll-snap gallery */
 .gallery-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.25rem; }
